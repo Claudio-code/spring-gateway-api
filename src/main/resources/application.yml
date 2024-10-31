@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: msgateway
+  main:
+    web-application-type: reactive
+  cloud:
+    gateway:
+      routes:
+        - id: poke
+          predicates:
+            - Path=/api/v2/pokemon/ditto
+          uri: ${redirects.poke.uri}
+        - id: poke-two
+          predicates:
+            - Path=/poke-two/**
+          filters:
+          - RewritePath=/poke-two/(?<segment>.*), /$\{segment}
+          uri: ${redirects.poke.uri}
+redirects:
+  poke:
+    uri: https://pokeapi.co
