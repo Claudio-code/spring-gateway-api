@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spring-cloud-gateway-map
+data:
+  SPRING_PROFILES_ACTIVE: prod
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: spring-cloud-gateway
+  name: spring-cloud-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      labels:
+        app: spring-cloud-gateway
+  template:
+    metatada:
+      labels:
+        app: spring-cloud-gateway
+    spec:
+      containers:
+        - image: claudio2424/learngin-spring-cloud-gateway:latest
+        imagePullPolicy: Always
+        name: spring-cloud-gateway
+        ports:
+          - containerPort: 8080
+            protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: spring-cloud-gateway
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: spring-cloud-gateway
+  name: spring-cloud-gateway
+ spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: spring-cloud-gateway
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: spring-cloud-gateway
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: foo.pøssuida0.zzz
+    http:
+      paths:
+      - path:
+        pathType: Prefix
+        backend:
+          service:
+            name: spring-cloud-gateway
+            port:
+              number: 80
